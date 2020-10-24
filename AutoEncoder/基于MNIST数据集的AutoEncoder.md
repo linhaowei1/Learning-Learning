@@ -1,6 +1,5 @@
 # 基于MNIST数据集的AutoEncoder
 
-[toc]
 
 ## README
 
@@ -13,7 +12,7 @@
 
 ## RESULTS
 
-```sql
+```
 Epoch: 1        Training Loss: 5.32389379
 Epoch: 2        Training Loss: 5.05373490
 Epoch: 3        Training Loss: 4.64951849
@@ -52,10 +51,8 @@ Epoch: 30       Training Loss: 3.37368929
 
 ### Encoded
 
-![image-20201024235700799](/Users/linhaowei/Library/Application Support/typora-user-images/image-20201024235700799.png)
-
-
+详见图片encoded.png
 
 ### Decoded
 
-![image-20201024235721644](/Users/linhaowei/Library/Application Support/typora-user-images/image-20201024235721644.png)
+详见图片decoded.png
