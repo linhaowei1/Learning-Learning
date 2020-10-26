@@ -51,7 +51,7 @@ Epoch: 30       Training Loss: 3.37368929
 
 ### Encoded
 
-![image](http://github.com/linhaowei1/Learning-Learning/raw/master/pic/encoded.png)
+![image](http://github.com/linhaowei1/Learning-Learning/raw/master/AutoEncoder/pic/encoded.png)
 
 
 
