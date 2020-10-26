@@ -60,7 +60,8 @@ training data前后经过encoder的前后对比图
 ![decoded](https://github.com/linhaowei1/Learning-Learning/blob/main/AutoEncoder/pic/decoded.png)
 
 ### 解码图片生成
-利用x,y 在 -5,5; -10, 10; -50, 50三个范围内的随机数各进行了100张图片的生成。
+经过decoder，可以将两个特征的向量生成一张28*28的图片。
+下面利用（x，y） 在 （-5,5）； （-10, 10）； （-50, 50）三个范围内的随机数各进行了100张图片的生成。
 
 #### 范围【-5：5】
 ![1](https://github.com/linhaowei1/Learning-Learning/blob/main/AutoEncoder/pic/-5,5.png)
