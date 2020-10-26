@@ -7,7 +7,7 @@
 - net训练代码详见train.py；
 - encoded的可视化、decoded的可视化实现详见Visualization.py；
 - 在Visualization.py中，跳过了训练环节，使用net_params.pkl中的参数。
-
+- 2020.10.26增加了generate.py，将训练完成的autoencoder进行图像的生成。
 
 
 ## RESULTS
@@ -50,11 +50,22 @@ Epoch: 30       Training Loss: 3.37368929
 ## VISUALIZATION
 
 ### Encoded
-
-![image](https://github.com/linhaowei1/Learning-Learning/blob/main/AutoEncoder/pic/encoded.png)
+training data被编码为2维向量的分布：
+![encoded](https://github.com/linhaowei1/Learning-Learning/blob/main/AutoEncoder/pic/encoded.png)
 
 
 
 ### Decoded
+training data前后经过encoder的前后对比图
+![decoded](https://github.com/linhaowei1/Learning-Learning/blob/main/AutoEncoder/pic/decoded.png)
 
-详见图片[decoded](https://github.com/linhaowei1/Learning-Learning/blob/main/AutoEncoder/decoded.png)
+### 解码图片生成
+利用x,y 在 -5,5; -10, 10; -50, 50三个范围内的随机数各进行了100张图片的生成。
+
+#### 范围【-5：5】
+![1](https://github.com/linhaowei1/Learning-Learning/blob/main/AutoEncoder/pic/-5,5.png)
+#### 范围【-10：10】
+![1](https://github.com/linhaowei1/Learning-Learning/blob/main/AutoEncoder/pic/-10,10.png)
+#### 范围【-50：50】
+![1](https://github.com/linhaowei1/Learning-Learning/blob/main/AutoEncoder/pic/-50,50.png)
+
