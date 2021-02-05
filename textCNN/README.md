@@ -2,7 +2,7 @@
 
 ## cpu
 
-在测试集上的acc为$79.00\%$。跑20个epoch。
+在测试集上的acc为79.00%。跑20个epoch。
 
 ```python
 hyperparameters = {
