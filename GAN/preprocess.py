@@ -122,7 +122,7 @@ import torchvision
 # hyperparameters 
 batch_size = 64
 z_dim = 100
-lr = 1e-4
+lr = 0.00005
 n_epoch = 200
 save_dir = os.path.join(workspace_dir, 'logs')
 os.makedirs(save_dir, exist_ok=True)
@@ -134,8 +134,8 @@ G.train()
 D.train()
 
 # optimizer
-opt_D = torch.optim.Adam(D.parameters(), lr=lr, betas=(0.5, 0.999))
-opt_G = torch.optim.Adam(G.parameters(), lr=lr, betas=(0.5, 0.999))
+opt_D = torch.optim.RMSprop(D.parameters(), lr=lr)
+opt_G = torch.optim.RMSprop(G.parameters(), lr=lr)
 
 
 same_seeds(0)
@@ -179,18 +179,18 @@ for e, epoch in enumerate(range(n_epoch)):
             p.data.clamp_(-0.01, 0.01)
 
         if i % 5 == 0:
-        """ train G """
-        # leaf
+            """ train G """
+            # leaf
             z = Variable(torch.randn(bs, z_dim)).cuda()
             f_imgs = G(z)
 
-        # dis
+            # dis
             f_logit = D(f_imgs)
         
-        # compute loss
+            # compute loss
             loss_G = -torch.mean(f_logit)
 
-        # update model
+            # update model
             G.zero_grad()
             loss_G.backward()
             opt_G.step()
