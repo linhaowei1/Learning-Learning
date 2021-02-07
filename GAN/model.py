@@ -21,11 +21,11 @@ class Generator(nn.Module):
                 nn.ConvTranspose2d(in_dim, out_dim, 5, 2,
                                    padding=2, output_padding=1, bias=False),
                 nn.BatchNorm2d(out_dim),
-                nn.ReLU())
+                nn.LeakyReLU(0.2, inplace = True))
         self.l1 = nn.Sequential(
             nn.Linear(in_dim, dim * 8 * 4 * 4, bias=False),
             nn.BatchNorm1d(dim * 8 * 4 * 4),
-            nn.ReLU())
+            nn.LeakyReLU(0.2, inplace=True))
         self.l2_5 = nn.Sequential(
             dconv_bn_relu(dim * 8, dim * 4),
             dconv_bn_relu(dim * 4, dim * 2),
@@ -50,14 +50,13 @@ class Discriminator(nn.Module):
             return nn.Sequential(
                 nn.Conv2d(in_dim, out_dim, 5, 2, 2),
                 nn.BatchNorm2d(out_dim),
-                nn.LeakyReLU(0.2))
+                nn.LeakyReLU(0.2, inplace=True))
         self.ls = nn.Sequential(
             nn.Conv2d(in_dim, dim, 5, 2, 2), nn.LeakyReLU(0.2),
             conv_bn_lrelu(dim, dim * 2),
             conv_bn_lrelu(dim * 2, dim * 4),
             conv_bn_lrelu(dim * 4, dim * 8),
-            nn.Conv2d(dim * 8, 1, 4),
-            nn.Sigmoid())
+            nn.Conv2d(dim * 8, 1, 4))
         self.apply(weights_init)        
     def forward(self, x):
         y = self.ls(x)

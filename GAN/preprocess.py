@@ -71,9 +71,6 @@ D = Discriminator(3).cuda()
 G.train()
 D.train()
 
-# loss criterion
-criterion = nn.BCELoss()
-
 # optimizer
 opt_D = torch.optim.Adam(D.parameters(), lr=lr, betas=(0.5, 0.999))
 opt_G = torch.optim.Adam(G.parameters(), lr=lr, betas=(0.5, 0.999))
@@ -98,42 +95,32 @@ for e, epoch in enumerate(range(n_epoch)):
         r_imgs = Variable(imgs).cuda()
         f_imgs = G(z)
 
-        # label        
-        r_label = torch.ones((bs)).cuda()
-        f_label = torch.zeros((bs)).cuda()
-
-        # dis
-        r_logit = D(r_imgs.detach())
-        f_logit = D(f_imgs.detach())
-        
-        # compute loss
-        r_loss = criterion(r_logit, r_label)
-        f_loss = criterion(f_logit, f_label)
-        loss_D = (r_loss + f_loss) / 2
+        loss_D = -torch.mean(D(r_imgs)) + torch.mean(D(f_imgs))
 
         # update model
         D.zero_grad()
         loss_D.backward()
         opt_D.step()
 
+        # Clip weights of discriminator
+        for p in D.parameters():
+            p.data.clamp_(clip_value, clip_value)
+        
         """ train G """
         # leaf
         z = Variable(torch.randn(bs, z_dim)).cuda()
         f_imgs = G(z)
-
-        # dis
-        f_logit = D(f_imgs)
         
         # compute loss
-        loss_G = criterion(f_logit, r_label)
+        loss_G = -torch.mean(D(f_imgs))
 
         # update model
         G.zero_grad()
         loss_G.backward()
         opt_G.step()
 
-        # log
         print(f'\rEpoch [{epoch+1}/{n_epoch}] {i+1}/{len(dataloader)} Loss_D: {loss_D.item():.4f} Loss_G: {loss_G.item():.4f}', end='')
+   
     G.eval()
     f_imgs_sample = (G(z_sample).data + 1) / 2.0
     filename = os.path.join(save_dir, f'Epoch_{epoch+1:03d}.jpg')
@@ -148,4 +135,11 @@ for e, epoch in enumerate(range(n_epoch)):
     if (e+1) % 5 == 0:
         torch.save(G.state_dict(), os.path.join(workspace_dir, f'dcgan_g.pth'))
         torch.save(D.state_dict(), os.path.join(workspace_dir, f'dcgan_d.pth'))
-    print('ret')
+
+# generate images and save the result
+n_output = 20
+z_sample = Variable(torch.randn(n_output, z_dim)).cuda()
+imgs_sample = (G(z_sample).data + 1) / 2.0
+save_dir = os.path.join(workspace_dir, 'logs')
+filename = os.path.join(save_dir, f'result.jpg')
+torchvision.utils.save_image(imgs_sample, filename, nrow=10)
