@@ -148,4 +148,3 @@ for e, epoch in enumerate(range(n_epoch)):
     if (e+1) % 5 == 0:
         torch.save(G.state_dict(), os.path.join(workspace_dir, f'dcgan_g.pth'))
         torch.save(D.state_dict(), os.path.join(workspace_dir, f'dcgan_d.pth'))
-
