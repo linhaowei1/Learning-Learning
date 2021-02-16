@@ -165,7 +165,7 @@ if __name__ == '__main__':
         'pre':args.pre,
         'maxlenth':args.maxlenth
     }, c)
-    model.load_state_dict(torch.load('params_csi_transform=swap0.6_pos=4.pkl'))  
+    #model.load_state_dict(torch.load('params_csi_transform=swap0.2_pos=4.pkl'))  
 
     if args.cuda:
         model = model.cuda()

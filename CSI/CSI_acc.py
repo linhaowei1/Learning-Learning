@@ -120,30 +120,33 @@ def evaluate(epoch_number):
 def deal_val(val_data):
     new_val_data = []
     for data in val_data:
-        if data['label'] == 4:
-            new_val_data.append(data)
-        else:
-            data['label'] = 1
-            new_val_data.append(data)
+        data['label'] = 4
+        new_val_data.append(data)
+        data_t = dict(data)
+        data_t['label'] = 1
+        data_t['text'] = SynTrans(data_t['text'])
+        new_val_data.append(data_t)
     return new_val_data
 
 def deal_train(train_data):
     new_train_data = []
     for data in train_data:
         if data['label'] == 4:
-            new_train_data.append(data)
-            new_data = SwapTrans(data['text'])
+            new_data = SynTrans(data['text'])
             tmp = dict(data)
             tmp['text'] = new_data
             tmp['label'] = 1
+            #tmp['text'] = aug(tmp['text'])
             new_train_data.append(tmp)
+            #data['text'] = aug(data['text'])
+            new_train_data.append(data)
             #pdb.set_trace()
     return new_train_data
 
 def train(epoch_number):
     model.eval()
 
-    for batch, i in enumerate(range(0, int(len(data_train)/2), 1)):
+    for batch, i in enumerate(range(0, int(len(data_train)), 1)):
         # batch_size = N, use data from i to i+args.batch_size -1 . generate to 2N:
         data, targets, lenth = package(data_train[i:i+1], volatile=False)
         if args.cuda:
@@ -202,7 +205,7 @@ if __name__ == '__main__':
         'pre':args.pre,
         'maxlenth':args.maxlenth
     }, c)
-    model.load_state_dict(torch.load('params_csi_transform=swap_pos=4.pkl'))  
+    #model.load_state_dict(torch.load('params_csi_transform=swap0.2_pos=4.pkl'))  
 
     if args.cuda:
         model = model.cuda()
