@@ -16,11 +16,11 @@ import pdb
 import pickle as pkl
 import pdb
 
-os.environ["CUDA_VISIBLE_DEVICES"] = "4" 
+os.environ["CUDA_VISIBLE_DEVICES"] = "5" 
 
 def package(data, volatile=False):
     """Package data for training / evaluation."""
-    data = sorted(data, key = lambda x: len(x['text']), reverse=True)
+    #data = sorted(data, key = lambda x: len(x['text']), reverse=True)
     dat = map(lambda x: list(map(lambda y: dictionary.word2idx.get(y, 0), x['text'])), data)
     dat = list(dat)
     maxlen = 0
@@ -40,7 +40,7 @@ def package(data, volatile=False):
     lenth = Variable( torch.LongTensor(lenth), volatile = volatile)
     return dat.t(), targets, lenth
 
-def deal_train(train_data, src_label = 4, trans = SwapTrans, aug = aug):
+def deal_train(train_data, src_label = 4, trans = MaskTrans, aug = aug):
     new_train_data = []
     for data in train_data:
         if data['label'] == src_label:
@@ -49,10 +49,10 @@ def deal_train(train_data, src_label = 4, trans = SwapTrans, aug = aug):
             tmp = dict(data)
             tmp['text'] = new_data
             new_train_data.append(tmp)
-    sorted(new_train_data, key = lambda x: len(x['text']), reverse=True)
+    new_train_data = sorted(new_train_data, key = lambda x: len(x['text']), reverse=True)
     data_1 = []
     data_2 = []
-    for i,item in enumerate(new_train_data):
+    for item in new_train_data:
         item1 = aug(item['text'])
         item11 = dict(item)
         item11['text'] = item1
@@ -65,6 +65,9 @@ def deal_train(train_data, src_label = 4, trans = SwapTrans, aug = aug):
         data_1.append(item11)
         data_2.append(item22)
     #pdb.set_trace()
+    data_1 = sorted(data_1, key = lambda x: len(x['text']), reverse=True)
+    data_2 = sorted(data_2, key = lambda x: len(x['text']), reverse=True)
+
     return data_1, data_2
 
 def train(epoch_number):
@@ -102,7 +105,7 @@ def train(epoch_number):
                   elapsed * 1000 / args.log_interval, total_loss / args.log_interval))
             total_loss = 0
             start_time = time.time()
-        torch.save(model.state_dict(), 'params_csi_transform=swap_pos=4.pkl')
+        torch.save(model.state_dict(), 'params_csi_transform=mask0.6_pos=4.pkl')
 
 
 if __name__ == '__main__':

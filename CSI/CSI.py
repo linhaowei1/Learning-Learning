@@ -18,15 +18,11 @@ import pickle as pkl
 import pdb
 import numpy as np
 
-TARGET = []
-PROB = []
-
-os.environ["CUDA_VISIBLE_DEVICES"] = "5" 
+os.environ["CUDA_VISIBLE_DEVICES"] = "4" 
 
 
 def package(data, volatile=False):
     """Package data for training / evaluation."""
-    # data = sorted(data, key = lambda x: len(x['text']), reverse=True)
     data = sorted(data, key = lambda x: len(x['text']), reverse=True)
     dat = map(lambda x: list(map(lambda y: dictionary.word2idx.get(y, 0), x['text'])), data)
     dat = list(dat)
@@ -48,13 +44,9 @@ def package(data, volatile=False):
     lenth = Variable( torch.LongTensor(lenth), volatile = volatile)
     return dat.t(), targets, lenth
 
-corpus = []
-cos = torch.nn.CosineSimilarity(dim = 1)
-
-def evaluate(epoch_number):
-    total_correct = 0
-    total_data = 0
-    """evaluate the model while training"""
+def evaluate():
+    TARGET = []
+    PROB = []
     model.eval()  # turn on the eval() switch to disable dropout
 
     for batch, i in enumerate(range(0, len(data_val), 1)):
@@ -63,24 +55,35 @@ def evaluate(epoch_number):
             data = data.cuda()
             targets = targets.cuda()
         #pdb.set_trace()
-        hidden = model.init_hidden(data.size(1))
-        pred = model.get_feature(data, hidden, lenth, epoch_number)
-       # pdb.set_trace()
-        score = (feature * pred).sum(dim = 1).max().item()
-        #pdb.set_trace()
-        TARGET.append(targets.item())
-        PROB.append(score)
-        print("score = ", score, "target = ", targets.item())
+        with torch.no_grad():
+            hidden = model.init_hidden(data.size(1))
+            pred = model.get_feature(data, hidden, lenth, 1)
+            score = (feature * pred).sum(dim = 1).max().item()
+            TARGET.append(targets.item())
+            PROB.append(score)
+            print("score = ", score, "target = ", targets.item())
 
     fpr, tpr, thresholds = metrics.roc_curve(TARGET, PROB, pos_label=4)
+    thresh = thresholds[np.argmax(tpr - fpr)]
+    print("thershold = ", thresh)
+    acc = 0
+    for i in range(len(TARGET)):
+        if PROB[i] >= thresh and TARGET[i] == 4:
+            acc += 1
+        elif PROB[i] < thresh and TARGET[i] != 4:
+            acc += 1
+    acc /= len(TARGET)
+    print("acc=", acc)
     print("finally, auc = {}".format(metrics.auc(fpr, tpr)))
-    print("PROB example = ", PROB[:20])
-    print("TARGET example = ", TARGET[:20])
+    print("PROB example = ", PROB[20:40])
+    print("TARGET example = ", TARGET[20:40])
+
 
         
 def deal_train(train_data):
     new_train_data = []
     for data in train_data:
+        #data['text'] = aug(data['text'])
         if data['label'] == 4:
             data['text'] = aug(data['text'])
             new_train_data.append(data)
@@ -89,15 +92,20 @@ def deal_train(train_data):
 def deal_val(val_data):
     new_val_data = []
     for data in val_data:
-        if data['label'] == 4:
-            new_val_data.append(data)
-        else:
-            data['label'] = 1
-            new_val_data.append(data)
-            #pdb.set_trace()
+        '''
+        item1 = SwapTrans(data['text'])
+        data_t = dict(data)
+        data_t['text'] = item1
+        data_t['label'] = 1
+        data['text'] = aug(data['text'])
+        data['label'] = 4'''
+        data['text'] = aug(data['text'])
+        new_val_data.append(data)
+        #new_val_data.append(data_t)
+        #pdb.set_trace()
     return new_val_data
 
-def train(epoch_number):
+def train():
     model.eval()
     feature = []
 
@@ -108,7 +116,7 @@ def train(epoch_number):
             targets = targets.cuda()
         with torch.no_grad():
             hidden = model.init_hidden(data.size(1))
-            feats = model.get_feature(data, hidden,lenth, epoch_number)
+            feats = model.get_feature(data, hidden,lenth, 1)
             feats = F.normalize(feats, dim=1)
             feature += feats.chunk(args.batch_size, dim = 0)
     
@@ -157,7 +165,7 @@ if __name__ == '__main__':
         'pre':args.pre,
         'maxlenth':args.maxlenth
     }, c)
-    model.load_state_dict(torch.load('params_csi_transform=swap_pos=4.pkl'))  
+    model.load_state_dict(torch.load('params_csi_transform=swap0.6_pos=4.pkl'))  
 
     if args.cuda:
         model = model.cuda()
@@ -175,7 +183,7 @@ if __name__ == '__main__':
         raise Exception('For other optimizers, please add it yourself. '
                         'supported ones are: SGD and Adam.')
     print('Begin to load data.')
-    #data_train = sst2loader('train')
+
     data_train = open(args.train_data).readlines()
     data_train = list(map(lambda x: json.loads(x), data_train))
     data_train = deal_train(data_train)
@@ -183,7 +191,7 @@ if __name__ == '__main__':
     data_val = list(map(lambda x: json.loads(x), data_val))
     data_val = deal_val(data_val)
 
-    feature = train(1)
-    evaluate(1)
+    feature = train()
+    evaluate()
 
     
