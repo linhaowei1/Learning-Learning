@@ -67,13 +67,23 @@ def evaluate():
     thresh = thresholds[np.argmax(tpr - fpr)]
     print("thershold = ", thresh)
     acc = 0
+    cor1 = 0
+    cor0 = 0
+    tot0 = 0
+    tot1 = 0
     for i in range(len(TARGET)):
+        if TARGET[i] == 4:
+            tot0 += 1
+        else:
+            tot1 += 1
         if PROB[i] >= thresh and TARGET[i] == 4:
             acc += 1
+            cor0 += 1
         elif PROB[i] < thresh and TARGET[i] != 4:
             acc += 1
+            cor1 += 1
     acc /= len(TARGET)
-    print("acc=", acc)
+    print("acc= ", acc, "acc0 = ", cor0 / tot0, "acc1 = ", cor1/ tot1)
     print("finally, auc = {}".format(metrics.auc(fpr, tpr)))
     print("PROB example = ", PROB[20:40])
     print("TARGET example = ", TARGET[20:40])
@@ -99,8 +109,9 @@ def deal_val(val_data):
         data_t['label'] = 1
         data['text'] = aug(data['text'])
         data['label'] = 4'''
-        data['text'] = aug(data['text'])
-        new_val_data.append(data)
+        if data['label'] == 0 or data['label'] == 4:
+            data['text'] = aug(data['text'])
+            new_val_data.append(data)
         #new_val_data.append(data_t)
         #pdb.set_trace()
     return new_val_data
@@ -165,7 +176,7 @@ if __name__ == '__main__':
         'pre':args.pre,
         'maxlenth':args.maxlenth
     }, c)
-    #model.load_state_dict(torch.load('params_csi_transform=swap0.2_pos=4.pkl'))  
+    model.load_state_dict(torch.load('params_csi_transform=swap_aug=syn_pos=4.pkl'))  
 
     if args.cuda:
         model = model.cuda()
@@ -187,7 +198,7 @@ if __name__ == '__main__':
     data_train = open(args.train_data).readlines()
     data_train = list(map(lambda x: json.loads(x), data_train))
     data_train = deal_train(data_train)
-    data_val = open(args.val_data).readlines()
+    data_val = open(args.train_data).readlines()
     data_val = list(map(lambda x: json.loads(x), data_val))
     data_val = deal_val(data_val)
 

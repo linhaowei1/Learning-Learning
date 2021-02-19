@@ -105,7 +105,7 @@ def train(epoch_number):
                   elapsed * 1000 / args.log_interval, total_loss / args.log_interval))
             total_loss = 0
             start_time = time.time()
-        torch.save(model.state_dict(), 'params_csi_transform=swap0.2_pos=4.pkl')
+        torch.save(model.state_dict(), 'params_csi_transform=swap_aug=syn_pos=4.pkl')
 
 
 if __name__ == '__main__':
