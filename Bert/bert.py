@@ -41,7 +41,12 @@ class BERT(nn.Module):
     def __init__(self, convert_mode=False, flag=0):
         super(BERT, self).__init__()
         self.model = BertModel.from_pretrained('bert-base-uncased', output_hidden_states=True).cuda()
-        self.pre_classifier = nn.Linear(768, 300)
+        self.pre_classifier = nn.Sequential(
+            nn.Linear(768, 600),
+            nn.ReLU(),
+            nn.Dropout(0.1),
+            nn.Linear(600, 300)
+        )
         self.classifier = nn.Linear(300, 5)
         self.dropout = nn.Dropout(0.1)
         self.flag = flag

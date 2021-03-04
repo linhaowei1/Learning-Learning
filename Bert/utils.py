@@ -31,6 +31,6 @@ def get_args():
                         help='use CUDA')
     parser.add_argument('--log-interval', type=int, default=20, metavar='N',
                         help='report interval')
-    parser.add_argument('--batch-size', type=int, default=32,
+    parser.add_argument('--batch-size', type=int, default=128,
                         help='batch size for training')
     return parser.parse_args()

@@ -1,0 +1,4 @@
+bert_flag =0 : tensor(0.4487, device='cuda:2')
+bert_flag =1 : tensor(0.4423, device='cuda:2')
+bert_flag =0 : tensor(0.4487, device='cuda:2')
+bert_flag =1 : tensor(0.4405, device='cuda:2')

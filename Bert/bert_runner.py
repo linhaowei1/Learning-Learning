@@ -85,7 +85,7 @@ def train(epoch_number):
 
 if __name__ == '__main__':
     writer = open('bert_acc_freeze.txt', 'a')
-    with torch.cuda.device(0):
+    with torch.cuda.device(2):
         for ep in range(14):
             args = get_args()
             torch.manual_seed(args.seed)
@@ -106,9 +106,10 @@ if __name__ == '__main__':
             if args.cuda:
                 criterion = criterion.cuda()
             
-            optimizer = AdamW(model.parameters(), lr=1e-5)
             for param in model.model.base_model.parameters():
                 param.requires_grad = False
+
+            optimizer = torch.optim.Adam(filter(lambda p: p.requires_grad, model.parameters()), lr=1e-4)
 
             data_train = SST1Dataset('./SST1/train.txt')
             dataloader = DataLoader(data_train, batch_size=args.batch_size, shuffle=True, drop_last=False, collate_fn=collate_fn)
