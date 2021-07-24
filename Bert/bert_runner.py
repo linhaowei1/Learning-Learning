@@ -23,22 +23,23 @@ def evaluate(epoch_number):
     model.eval()  # turn on the eval() switch to disable dropout
     total_loss = 0
     total_correct = 0
+    
+    with torch.no_grad():
+        for inputs, labels in val_loader:
+    
+            if args.cuda:
+                inputs['input_ids'] = inputs['input_ids'].cuda()
+                inputs['attention_mask'] = inputs['attention_mask'].cuda()
+                labels = labels.cuda()
 
-    for inputs, labels in val_loader:
+            pred = model.forward(inputs, labels)
+            loss = criterion(pred, labels)
+            total_loss += loss.data
 
-        if args.cuda:
-            inputs['input_ids'] = inputs['input_ids'].cuda()
-            inputs['attention_mask'] = inputs['attention_mask'].cuda()
-            labels = labels.cuda()
+            prediction = torch.max(pred, 1)[1]
+            total_correct += torch.sum((prediction == labels).float())
 
-        pred = model.forward(inputs, labels)
-        loss = criterion(pred, labels)
-        total_loss += loss.data
-
-        prediction = torch.max(pred, 1)[1]
-        total_correct += torch.sum((prediction == labels).float())
-
-    ave_loss = total_loss / (len(data_val) // args.batch_size)
+        ave_loss = total_loss / (len(data_val) // args.batch_size)
 
     return ave_loss, total_correct.data / len(data_val)
 
